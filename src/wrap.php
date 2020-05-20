@@ -65,7 +65,7 @@ class wrap {
 
 
 			if( $fetchUsers ) {
-				$ou->users = $this->getUsers( $ou->dn );
+				$ou->users        = $this->getUsers( $ou->dn );
 				$ou->usersFetched = true;
 			}
 
@@ -114,6 +114,7 @@ class wrap {
 			$user->department         = $rawUser[ 'department' ];
 			$user->employeeNumber     = $rawUser[ 'employeeNumber' ];
 			$user->pwdLastSet         = $rawUser[ 'pwdlastset' ];
+			$user->dn                 = $rawUser[ 'dn' ];
 			$user->active             = ( $user->userAccountControl & 2 ) == 2 ? false : true;
 			$user->changePassword     = false;
 
