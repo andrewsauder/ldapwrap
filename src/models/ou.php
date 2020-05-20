@@ -6,7 +6,7 @@ class ou {
 	/** @var string Name of organizational unit */
 	public $name = '';
 	/** @var string Name of organizational unit */
-	public $distinguishedName = '';
+	public $dn = '';
 
 	/** @var \model\ou[] Array of sub organizational units */
 	public $children = [];

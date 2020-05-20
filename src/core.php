@@ -126,7 +126,6 @@ class core {
 
 		if( $this->connection === false ) {
 			error_log( 'LDAP: failed to connect using connection string: ' . $this->config[ 'server' ] );
-
 			return false;
 		}
 
@@ -206,7 +205,7 @@ class core {
 		}
 
 		$info = ldap_get_entries( $this->connection, $sr );
-		pie( $info );
+pie( $info );
 		$fin = [];
 
 		for( $i = 0; $i < $info[ "count" ]; $i++ ) {

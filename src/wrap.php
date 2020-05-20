@@ -41,6 +41,7 @@ class wrap {
 
 		//sort by name
 		usort( $rawOus, function( $a, $b ) {
+
 			return strcmp( $a[ "ou" ], $b[ "ou" ] );
 		} );
 
@@ -49,9 +50,9 @@ class wrap {
 
 		//get additional data for each
 		foreach( $rawOus as $i => $rawOu ) {
-			$ou                    = new \andrewsauder\ldapwrap\models\ou();
-			$ou->name              = $rawOu[ 'ou' ];
-			$ou->distinguishedName = $rawOu[ 'dn' ];
+			$ou       = new \andrewsauder\ldapwrap\models\ou();
+			$ou->name = $rawOu[ 'ou' ];
+			$ou->dn   = $rawOu[ 'dn' ];
 
 			if( $recursiveOu ) {
 				$searchChildrenDistinguishedName = 'ou=' . $rawOu[ 'ou' ] . ',' . $distinguishedName;
@@ -62,17 +63,11 @@ class wrap {
 				$ou->childrenFetched = true;
 			}
 
-			//$users = $this->getOUUsers( $subDistinguishedName );
 
-			//$fu = [];
-			//foreach( $users as $user ) {
-			//	$fu[] = $this->getUser( $user );
-			//}
-
-
-			//if( $users !== false && count( $users ) > 0 ) {
-			//	$ous[ $i ][ 'users' ] = $fu;
-			//}
+			if( $fetchUsers ) {
+				$ou->users = $this->getUsers( $ou->dn );
+				$ou->usersFetched = true;
+			}
 
 			$ous[] = $ou;
 
@@ -80,6 +75,52 @@ class wrap {
 
 
 		return $ous;
+
+	}
+
+
+	public function getUsers( $dn ) {
+
+		$q = '(objectClass=User)';
+
+		$fields = [
+			"displayname",
+			"givenname",
+			"sn",
+			"mail",
+			"userPrincipalName",
+			"sAMAccountName",
+			"telephoneNumber",
+			"useraccountcontrol",
+			"department",
+			"employeeNumber",
+			"pwdlastset",
+			"dn"
+		];
+
+		$rawUsers = $this->ldap->search( $q, $fields, $dn );
+
+		$users = [];
+
+		foreach( $rawUsers as $rawUser ) {
+			$user                     = new \andrewsauder\ldapwrap\models\user();
+			$user->displayName        = $rawUser[ 'displayname' ];
+			$user->givenName          = $rawUser[ 'givenname' ];
+			$user->sn                 = $rawUser[ 'sn' ];
+			$user->mail               = $rawUser[ 'mail' ];
+			$user->userPrincipalName  = $rawUser[ 'userprincipalname' ];
+			$user->telephoneNumber    = $rawUser[ 'telephonenumber' ];
+			$user->userAccountControl = $rawUser[ 'useraccountcontrol' ];
+			$user->department         = $rawUser[ 'department' ];
+			$user->employeeNumber     = $rawUser[ 'employeeNumber' ];
+			$user->pwdLastSet         = $rawUser[ 'pwdlastset' ];
+			$user->active             = ( $user[ 'useraccountcontrol' ] & 2 ) == 2 ? false : true;
+			$user->changePassword     = false;
+
+			$users[] = $user;
+		}
+
+		return $users;
 
 	}
 
