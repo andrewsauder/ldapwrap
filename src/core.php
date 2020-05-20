@@ -205,7 +205,7 @@ class core {
 		}
 
 		$info = ldap_get_entries( $this->connection, $sr );
-pie( $info );
+
 		$fin = [];
 
 		for( $i = 0; $i < $info[ "count" ]; $i++ ) {
