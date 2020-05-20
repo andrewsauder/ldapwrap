@@ -49,7 +49,7 @@ class wrap {
 
 		//get additional data for each
 		foreach( $rawOus as $i => $rawOu ) {
-			$ou                    = new \ldap\models\ou();
+			$ou                    = new \andrewsauder\ldapwrap\models\ou();
 			$ou->name              = $rawOu[ 'ou' ];
 			$ou->distinguishedName = $rawOu[ 'dn' ];
 
