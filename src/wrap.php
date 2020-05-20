@@ -109,19 +109,19 @@ class wrap {
 
 		foreach( $rawUsers as $rawUser ) {
 			$user                     = new \andrewsauder\ldapwrap\models\user();
-			$user->displayname        = isset($rawUser[ 'displayname' ]) ? $rawUser[ 'displayname' ] : '';
-			$user->givenname          = isset($rawUser[ 'givenname' ]) ? $rawUser[ 'givenname' ] : '';
-			$user->sn                 = isset($rawUser[ 'sn' ]) ? $rawUser[ 'sn' ] : '';
-			$user->mail               = isset($rawUser[ 'mail' ]) ? $rawUser[ 'mail' ] : '';
-			$user->samaccountname  = isset($rawUser[ 'samaccountname' ]) ? $rawUser[ 'samaccountname' ] : '';
-			$user->userprincipalname  = isset($rawUser[ 'userprincipalname' ]) ? $rawUser[ 'userprincipalname' ] : '';
-			$user->telephonenumber  = isset($rawUser[ 'telephonenumber' ]) ? $rawUser[ 'telephonenumber' ] : '';
-			$user->useraccountcontrol = isset($rawUser[ 'useraccountcontrol' ]) ? $rawUser[ 'useraccountcontrol' ] : '';
-			$user->department         = isset($rawUser[ 'department' ]) ? $rawUser[ 'department' ] : '';
-			$user->employeenumber     = isset($rawUser[ 'employeenumber' ]) ? $rawUser[ 'employeenumber' ] : '';
-			$user->pwdlastset         = isset($rawUser[ 'pwdlastset' ]) ? $rawUser[ 'pwdlastset' ] : '';
-			$user->dn                 = isset($rawUser[ 'dn' ]) ? $rawUser[ 'dn' ] : '';
-			$user->active             = ( $user->userAccountControl & 2 ) == 2 ? false : true;
+			$user->displayname        = isset( $rawUser[ 'displayname' ] ) ? $rawUser[ 'displayname' ] : '';
+			$user->givenname          = isset( $rawUser[ 'givenname' ] ) ? $rawUser[ 'givenname' ] : '';
+			$user->sn                 = isset( $rawUser[ 'sn' ] ) ? $rawUser[ 'sn' ] : '';
+			$user->mail               = isset( $rawUser[ 'mail' ] ) ? $rawUser[ 'mail' ] : '';
+			$user->samaccountname     = isset( $rawUser[ 'samaccountname' ] ) ? $rawUser[ 'samaccountname' ] : '';
+			$user->userprincipalname  = isset( $rawUser[ 'userprincipalname' ] ) ? $rawUser[ 'userprincipalname' ] : '';
+			$user->telephonenumber    = isset( $rawUser[ 'telephonenumber' ] ) ? $rawUser[ 'telephonenumber' ] : '';
+			$user->useraccountcontrol = isset( $rawUser[ 'useraccountcontrol' ] ) ? $rawUser[ 'useraccountcontrol' ] : '';
+			$user->department         = isset( $rawUser[ 'department' ] ) ? $rawUser[ 'department' ] : '';
+			$user->employeenumber     = isset( $rawUser[ 'employeenumber' ] ) ? $rawUser[ 'employeenumber' ] : '';
+			$user->pwdlastset         = isset( $rawUser[ 'pwdlastset' ] ) ? $rawUser[ 'pwdlastset' ] : '';
+			$user->dn                 = isset( $rawUser[ 'dn' ] ) ? $rawUser[ 'dn' ] : '';
+			$user->active             = ( $user->useraccountcontrol & 2 ) == 2 ? false : true;
 			$user->changepassword     = false;
 
 			$users[] = $user;
@@ -130,7 +130,6 @@ class wrap {
 		return $users;
 
 	}
-
 
 
 	public function updateUser( $userArray ) {
@@ -171,16 +170,13 @@ class wrap {
 			$delete = $this->ldap->delete( $userArray[ 'dn' ], $params[ 'delete' ] );
 		}
 
-		if($userArray['changepassword']) {
-			$passwordStatus = $this->ldap->changePassword(  $userArray[ 'dn' ], $userArray['newpassword'] );
+		if( $userArray[ 'changepassword' ] ) {
+			$passwordStatus = $this->ldap->changePassword( $userArray[ 'dn' ], $userArray[ 'newpassword' ] );
 		}
 
-		return [
-			'modify' => $modify,
-			'delete' => $delete,
-			'reason' => 'Successfully saved.'
-		];
+		return $userArray;
 	}
+
 
 	private function modVDel( $post, $key, $params ) {
 
