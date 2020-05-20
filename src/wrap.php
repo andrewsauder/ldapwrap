@@ -104,20 +104,20 @@ class wrap {
 
 		foreach( $rawUsers as $rawUser ) {
 			$user                     = new \andrewsauder\ldapwrap\models\user();
-			$user->displayName        = isset($rawUser[ 'displayname' ]) ? $rawUser[ 'displayname' ] : '';
-			$user->givenName          = isset($rawUser[ 'givenname' ]) ? $rawUser[ 'givenname' ] : '';
+			$user->displayname        = isset($rawUser[ 'displayname' ]) ? $rawUser[ 'displayname' ] : '';
+			$user->givenname          = isset($rawUser[ 'givenname' ]) ? $rawUser[ 'givenname' ] : '';
 			$user->sn                 = isset($rawUser[ 'sn' ]) ? $rawUser[ 'sn' ] : '';
 			$user->mail               = isset($rawUser[ 'mail' ]) ? $rawUser[ 'mail' ] : '';
-			$user->samAccountName  = isset($rawUser[ 'samaccountname' ]) ? $rawUser[ 'samaccountname' ] : '';
-			$user->userPrincipalName  = isset($rawUser[ 'userprincipalname' ]) ? $rawUser[ 'userprincipalname' ] : '';
-			$user->telephoneNumber    = isset($rawUser[ 'telephonenumber' ]) ? $rawUser[ 'telephonenumber' ] : '';
-			$user->userAccountControl = isset($rawUser[ 'useraccountcontrol' ]) ? $rawUser[ 'useraccountcontrol' ] : '';
+			$user->samaccountname  = isset($rawUser[ 'samaccountname' ]) ? $rawUser[ 'samaccountname' ] : '';
+			$user->userprincipalname  = isset($rawUser[ 'userprincipalname' ]) ? $rawUser[ 'userprincipalname' ] : '';
+			$user->telephonenumber  = isset($rawUser[ 'telephonenumber' ]) ? $rawUser[ 'telephonenumber' ] : '';
+			$user->useraccountcontrol = isset($rawUser[ 'useraccountcontrol' ]) ? $rawUser[ 'useraccountcontrol' ] : '';
 			$user->department         = isset($rawUser[ 'department' ]) ? $rawUser[ 'department' ] : '';
-			$user->employeeNumber     = isset($rawUser[ 'employeenumber' ]) ? $rawUser[ 'employeenumber' ] : '';
-			$user->pwdLastSet         = isset($rawUser[ 'pwdlastset' ]) ? $rawUser[ 'pwdlastset' ] : '';
+			$user->employeenumber     = isset($rawUser[ 'employeenumber' ]) ? $rawUser[ 'employeenumber' ] : '';
+			$user->pwdlastset         = isset($rawUser[ 'pwdlastset' ]) ? $rawUser[ 'pwdlastset' ] : '';
 			$user->dn                 = isset($rawUser[ 'dn' ]) ? $rawUser[ 'dn' ] : '';
 			$user->active             = ( $user->userAccountControl & 2 ) == 2 ? false : true;
-			$user->changePassword     = false;
+			$user->changepassword     = false;
 
 			$users[] = $user;
 		}
