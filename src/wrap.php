@@ -114,7 +114,7 @@ class wrap {
 			$user->department         = $rawUser[ 'department' ];
 			$user->employeeNumber     = $rawUser[ 'employeeNumber' ];
 			$user->pwdLastSet         = $rawUser[ 'pwdlastset' ];
-			$user->active             = ( $user[ 'useraccountcontrol' ] & 2 ) == 2 ? false : true;
+			$user->active             = ( $user->userAccountControl & 2 ) == 2 ? false : true;
 			$user->changePassword     = false;
 
 			$users[] = $user;
