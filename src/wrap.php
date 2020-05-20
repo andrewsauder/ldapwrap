@@ -98,7 +98,7 @@ class wrap {
 			"dn"
 		];
 
-		$rawUsers = $this->ldap->search( $q, $fields, $dn );
+		$rawUsers = $this->ldap->flatSearch( $q, $fields, $dn );
 
 		$users = [];
 

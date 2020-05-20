@@ -172,7 +172,10 @@ class core {
 		for( $i = 0; $i < $info[ "count" ]; $i++ ) {
 			$ffin = [];
 			foreach( $f as $k ) {
-				if( !isset( $info[ $i ][ $k ][ 'count' ] ) ) {
+				if(!isset($info[ $i ][ $k ])) {
+					$ffin[ $k ] = null;
+				}
+				elseif( !isset( $info[ $i ][ $k ][ 'count' ] ) ) {
 					$ffin[ $k ] = $info[ $i ][ $k ];
 				}
 				elseif( $info[ $i ][ $k ][ 'count' ] == 0 ) {
