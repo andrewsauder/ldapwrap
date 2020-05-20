@@ -58,7 +58,7 @@ class wrap {
 				$searchChildrenDistinguishedName = 'ou=' . $rawOu[ 'ou' ] . ',' . $distinguishedName;
 				$subOus                          = $this->getOUs( $searchChildrenDistinguishedName, $recursiveOu, $fetchUsers );
 				if( count( $subOus ) > 0 ) {
-					$ou->children[] = $subOus;
+					$ou->children = $subOus;
 				}
 				$ou->childrenFetched = true;
 			}
