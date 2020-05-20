@@ -1,0 +1,22 @@
+{
+  "name": "andrewsauder/ldapwrap",
+  "description": "Simple PHP LDAP wrapper",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+	{
+	  "name": "Andrew Sauder",
+	  "email": "asauder@garrettcounty.org"
+	}
+  ],
+  "require": {
+	"php": ">=7.3.0",
+	"ext-ldap": "*",
+	"ext-json": "*",
+  },
+  "autoload": {
+	"psr-4": {
+	  "andrewsauder\\ldapwrap\\": "src/"
+	}
+  }
+}
