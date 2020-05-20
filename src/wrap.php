@@ -21,7 +21,7 @@ class wrap {
 	 * @param  bool    $recursiveOu
 	 * @param  bool    $fetchUsers
 	 *
-	 * @return array
+	 * @return \andrewsauder\ldapwrap\models\ou[]
 	 */
 	public function getOUs( $distinguishedName = '', $recursiveOu = false, $fetchUsers = false ) {
 
@@ -79,6 +79,11 @@ class wrap {
 	}
 
 
+	/**
+	 * @param $dn
+	 *
+	 * @return \andrewsauder\ldapwrap\models\user[]
+	 */
 	public function getUsers( $dn ) {
 
 		$q = '(objectClass=User)';
@@ -124,6 +129,69 @@ class wrap {
 
 		return $users;
 
+	}
+
+
+
+	public function updateUser( $userArray ) {
+
+		$modify = null;
+		$delete = null;
+
+		$params = [
+			'modify' => [],
+			'delete' => [],
+		];
+
+		$params = $this->modVDel( $userArray, 'telephonenumber', $params );
+		$params = $this->modVDel( $userArray, 'mail', $params );
+		$params = $this->modVDel( $userArray, 'givenname', $params );
+		$params = $this->modVDel( $userArray, 'sn', $params );
+		$params = $this->modVDel( $userArray, 'department', $params );
+		$params = $this->modVDel( $userArray, 'employeenumber', $params );
+
+		//user account control parameters (http://www.selfadsi.org/ads-attributes/user-userAccountControl.htm)
+		if( $userArray[ 'active' ] == 1 ) {
+			$enable                                     = 512; // UF_NORMAL_ACCOUNT
+			$params[ 'modify' ][ 'useraccountcontrol' ] = [
+				$enable
+			];
+		}
+		else {
+			$disable                                    = 514; // UF_NORMAL_ACCOUNT + UF_ACCOUNT_DISABLE
+			$params[ 'modify' ][ 'useraccountcontrol' ] = [
+				$disable
+			];
+		}
+
+		if( count( $params[ 'modify' ] ) > 0 ) {
+			$modify = $this->ldap->modify( $userArray[ 'dn' ], $params[ 'modify' ] );
+		}
+		if( count( $params[ 'delete' ] ) > 0 ) {
+			$delete = $this->ldap->delete( $userArray[ 'dn' ], $params[ 'delete' ] );
+		}
+
+		if($userArray['changepassword']) {
+			$passwordStatus = $this->ldap->changePassword(  $userArray[ 'dn' ], $userArray['newpassword'] );
+		}
+
+		return [
+			'modify' => $modify,
+			'delete' => $delete,
+			'reason' => 'Successfully saved.'
+		];
+	}
+
+	private function modVDel( $post, $key, $params ) {
+
+		if( isset( $post[ $key ] ) && trim( $post[ $key ] ) != '' ) {
+			$params[ 'modify' ][ $key ] = $post[ $key ];
+		}
+		else {
+			$params[ 'delete' ][ $key ] = [];
+		}
+
+		return $params;
 	}
 
 }
