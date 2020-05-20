@@ -7,22 +7,22 @@ class user {
 	public $sn = '';
 
 	/** @var string given name */
-	public $givenName = '';
+	public $givenname = '';
 
 	/** @var string display name */
-	public $displayName = '';
+	public $displayname = '';
 
 	/** @var string display name */
-	public $userAccountControl = '';
+	public $useraccountcontrol = '';
 
 	/** @var string Timestamp of last password change */
-	public $pwdLastSet = '';
+	public $pwdlastset = '';
 
 	/** @var string account name */
-	public $samAccountName = '';
+	public $samaccountname = '';
 
 	/** @var string userPrincipalName */
-	public $userPrincipalName = '';
+	public $userprincipalname = '';
 
 	/** @var string distinguished name */
 	public $dn = '';
@@ -31,18 +31,18 @@ class user {
 	public $mail = '';
 
 	/** @var string distinguished name */
-	public $telephoneNumber = '';
+	public $telephonenumber = '';
 
 	/** @var string distinguished name */
 	public $department = '';
 
 	/** @var string distinguished name */
-	public $employeeNumber = '';
+	public $employeenumber = '';
 
 	/** @var bool */
 	public $active = false;
 
 	/** @var bool */
-	public $changePassword = false;
+	public $changepassword = false;
 
 }
