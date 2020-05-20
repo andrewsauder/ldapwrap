@@ -300,6 +300,7 @@ class core {
 		if( $this->connection === false ) {
 			error_log( 'LdapWrap: failed to connect using connection string: ' . $this->config->server );
 
+			throw new \Exception('LdapWrap: Connection error');
 			return false;
 		}
 
@@ -321,6 +322,7 @@ class core {
 				error_log( "LdapWrap: Error Binding to LDAP: No additional information is available." );
 			}
 
+			throw new \Exception('LdapWrap: Failed to bind');
 
 			$this->connection = null;
 
