@@ -6,35 +6,40 @@ namespace andrewsauder\ldapwrap;
 
 class core {
 
-	private $config     = [
-		'server'   => '',
-		'user'     => '',
-		'password' => '',
-		'port'     => 3268,
-		'protocol' => 'ldap'
-	];
+	/** @var \andrewsauder\ldapwrap\models\config */
+	private $config;
 
 	private $connection = null;
 
 
+	/**
+	 * core constructor.
+	 *
+	 * @param $config array with config options (see config model for available settings)
+	 */
 	public function __construct( $config ) {
 
-		//config
-		//server and user/pass
-		$this->config[ 'server' ] = $config[ 'server' ];
-		if( isset( $config[ 'port' ] ) ) {
-			$this->config[ 'port' ] = (int) $config[ 'port' ];
-		}
-		if( isset( $config[ 'protocol' ] ) ) {
-			$this->config[ 'protocol' ] = $config[ 'protocol' ];
-		}
-		$this->config[ 'user' ]     = $config[ 'user' ];
-		$this->config[ 'password' ] = $config[ 'password' ];
+		$this->config = new \andrewsauder\ldapwrap\models\config();
 
-		//port if not default
+		$this->config->server = $config['server'];
+		$this->config->user = $config['user'];
+		$this->config->password = $config['password'];
+
 		if( isset( $config[ 'port' ] ) ) {
-			$this->config[ 'port' ] = $config[ 'port' ];
+			$this->config->port = (int) $config[ 'port' ];
 		}
+
+		if( isset( $config[ 'protocol' ] ) ) {
+			$this->config->protocol = $config[ 'protocol' ];
+		}
+
+		if( isset( $config[ 'baseDn' ] ) ) {
+			$this->config->baseDn = $config[ 'baseDn' ];
+		}
+		elseif( isset( $config[ 'base_dn' ] ) ) {
+			$this->config->baseDn = $config[ 'base_dn' ];
+		}
+
 
 	}
 
@@ -51,7 +56,7 @@ class core {
 		$connected = $this->connect();
 
 		if( !$connected ) {
-			elog( 'Connection error' );
+			error_log( 'LdapWrap: Connection error' );
 
 			return [];
 		}
@@ -60,13 +65,11 @@ class core {
 			$f = json_decode( $f, true );
 		}
 
-		$result = ldap_search( $this->connection, $dn, $q, $f );
+		$result = ldap_search( $this->connection, $this->getfullDn($dn), $q, $f );
 
 		if( $result === false ) {
-			error_log( "Error in search query: " . ldap_error( $this->connection ) );
+			error_log( "LdapWrap: Error in search query: " . ldap_error( $this->connection ) );
 		}
-		//$result = ldap_search($this->connection, $this->config['domain']['piecesStr'], "ou=*", json_decode('["ou"]',1)) or error_log("Error in search query: ".ldap_error($this->connection));
-
 		$data = ldap_get_entries( $this->connection, $result );
 
 		$fin = [];
@@ -115,53 +118,11 @@ class core {
 	}
 
 
-	private function connect() {
-
-		if( $this->connection !== null ) {
-			return true;
-		}
-
-		$connectionString = $this->config[ 'protocol' ] . '://' . $this->config[ 'server' ] . ':' . $this->config[ 'port' ];
-		$this->connection = ldap_connect( $connectionString );
-
-		if( $this->connection === false ) {
-			error_log( 'LDAP: failed to connect using connection string: ' . $this->config[ 'server' ] );
-			return false;
-		}
-
-		ldap_set_option( $this->connection, LDAP_OPT_PROTOCOL_VERSION, 3 );
-		ldap_set_option( $this->connection, LDAP_OPT_REFERRALS, 0 );
-
-		//define(LDAP_OPT_DIAGNOSTIC_MESSAGE, 0x0032);
-		$successful = ldap_bind( $this->connection, $this->config[ 'user' ], $this->config[ 'password' ] );
-
-		if( !$successful ) {
-			$errorNo  = ldap_errno( $this->connection );
-			$errorMsg = ldap_error( $this->connection );
-			elog( 'LDAP: failed to bind. Error ' . $errorNo . ': "' . $errorMsg . '". Using username: ' . $this->config[ 'user' ] . ' and password: ' . $this->config[ 'password' ] . ' on connection string: ' . $connectionString );
-
-			if( ldap_get_option( $this->connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $extended_error ) ) {
-				elog( "Error Binding to LDAP: $extended_error" );
-			}
-			else {
-				elog( "Error Binding to LDAP: No additional information is available." );
-			}
-
-
-			$this->connection = null;
-
-			return false;
-		}
-
-		return true;
-
-	}
-
 
 	/**
-	 * @param  string    $q   LDAP Query
+	 * @param  string  $q   LDAP Query
 	 * @param  string  $f   Field to return
-	 * @param  string    $dn  Distinguished name to run query inside of
+	 * @param  string  $dn  Distinguished name to run query inside of
 	 *
 	 * @return array|bool
 	 */
@@ -169,7 +130,7 @@ class core {
 
 		$this->connect();
 
-		$sr = ldap_list( $this->connection, $dn, $q, [ $f ] ) or error_log( $dn );
+		$sr = ldap_list( $this->connection, $this->getfullDn($dn), $q, [ $f ] ) or error_log( 'LdapWrap: '.$this->getfullDn($dn) );
 
 		if( $sr === false ) {
 			return false;
@@ -198,7 +159,7 @@ class core {
 
 		$this->connect();
 
-		$sr = ldap_list( $this->connection, $dn, $q, $f ) or error_log( $dn );
+		$sr = ldap_list( $this->connection, $this->getfullDn($dn), $q, $f ) or error_log( 'LdapWrap: '.$this->getfullDn($dn) );
 
 		if( $sr === false ) {
 			return [];
@@ -241,7 +202,7 @@ class core {
 
 		$this->connect();
 
-		$modified = ldap_modify( $this->connection, $dn, $new );
+		$modified = ldap_modify( $this->connection, $this->getfullDn($dn), $new );
 
 		return $modified;
 
@@ -252,7 +213,7 @@ class core {
 
 		$this->connect();
 
-		$modified = ldap_mod_replace( $this->connection, $dn, $new );
+		$modified = ldap_mod_replace( $this->connection, $this->getfullDn($dn), $new );
 
 		return $modified;
 
@@ -263,7 +224,7 @@ class core {
 
 		$this->connect();
 
-		$modified = ldap_mod_del( $this->connection, $dn, $new );
+		$modified = ldap_mod_del( $this->connection, $this->getfullDn($dn), $new );
 
 		return $modified;
 
@@ -272,7 +233,7 @@ class core {
 
 	public function add( $dn, $record ) {
 
-		$add = ldap_add( $this->connection, $dn, $record );
+		$add = ldap_add( $this->connection, $this->getfullDn($dn), $record );
 
 		return $add;
 
@@ -289,7 +250,7 @@ class core {
 			'unicodePwd' => $encoded_newPassword
 		];
 
-		$modified = ldap_mod_replace( $this->connection, $dn, $ldapData );
+		$modified = ldap_mod_replace( $this->connection, $this->getfullDn($dn), $ldapData );
 
 		return $modified;
 
@@ -309,6 +270,65 @@ class core {
 		return $newPassword;
 
 		return $newPassw;
+	}
+
+	private function getfullDn( $dn ) {
+
+		$fullDnPieces = [];
+
+		if($dn!='') {
+			$fullDnPieces[] = $dn;
+		}
+
+		if (strpos($dn, $this->config->baseDn) === false) {
+			$fullDnPieces[] = $this->config->baseDn;
+		}
+
+		return implode(',', $fullDnPieces);
+
+	}
+
+	private function connect() {
+
+		if( $this->connection !== null ) {
+			return true;
+		}
+
+		$connectionString = $this->config->protocol . '://' . $this->config->server . ':' . $this->config->port;
+		$this->connection = ldap_connect( $connectionString );
+
+		if( $this->connection === false ) {
+			error_log( 'LdapWrap: failed to connect using connection string: ' . $this->config->server );
+
+			return false;
+		}
+
+		ldap_set_option( $this->connection, LDAP_OPT_PROTOCOL_VERSION, 3 );
+		ldap_set_option( $this->connection, LDAP_OPT_REFERRALS, 0 );
+
+		//define(LDAP_OPT_DIAGNOSTIC_MESSAGE, 0x0032);
+		$successful = ldap_bind( $this->connection, $this->config->user, $this->config->password );
+
+		if( !$successful ) {
+			$errorNo  = ldap_errno( $this->connection );
+			$errorMsg = ldap_error( $this->connection );
+			error_log( 'LdapWrap: failed to bind. Error ' . $errorNo . ': "' . $errorMsg . '". Using username: ' . $this->config->user . ' on connection string: ' . $connectionString );
+
+			if( ldap_get_option( $this->connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $extended_error ) ) {
+				error_log( "LdapWrap: fError Binding to LDAP: $extended_error" );
+			}
+			else {
+				error_log( "LdapWrap: Error Binding to LDAP: No additional information is available." );
+			}
+
+
+			$this->connection = null;
+
+			return false;
+		}
+
+		return true;
+
 	}
 
 }
