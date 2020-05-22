@@ -225,7 +225,7 @@ class wrap {
 		}
 
 		$ldaprecord[ 'cn' ]                 = $cn;
-		$ldaprecord[ 'givenName' ]          = $userArray[ 'givenname' ];
+		$ldaprecord[ 'givenname' ]          = $userArray[ 'givenname' ];
 		$ldaprecord[ 'sn' ]                 = $userArray[ 'sn' ];
 
 		$ldaprecord[ 'objectclass' ][ 0 ]   = 'top';
@@ -233,15 +233,15 @@ class wrap {
 		$ldaprecord[ 'objectclass' ][ 2 ]   = 'organizationalPerson';
 		$ldaprecord[ 'objectclass' ][ 3 ]   = 'user';
 
-		$ldaprecord[ 'sAMAccountName' ]     = $sAMAccount;
-		$ldaprecord[ 'UserPrincipalName' ]  = $sAMAccount . "@" . $userArray[ 'domain' ];
-		$ldaprecord[ 'displayName' ]        = $cn;
-		$ldaprecord[ 'UserAccountControl' ] = "512";
-		$ldaprecord[ 'pwdLastSet' ] = -1;
+		$ldaprecord[ 'samaccountname' ]     = $sAMAccount;
+		$ldaprecord[ 'userprincipalname' ]  = $sAMAccount . "@" . $userArray[ 'domain' ];
+		$ldaprecord[ 'displayname' ]        = $cn;
+		$ldaprecord[ 'useraccountcontrol' ] = "512";
+		$ldaprecord[ 'pwdlastset' ] = -1;
 
-		$ldaprecord[ 'telephoneNumber' ]    = $userArray[ 'telephonenumber' ];
+		$ldaprecord[ 'telephonenumber' ]    = $userArray[ 'telephonenumber' ];
 		$ldaprecord[ 'department' ]         = $userArray[ 'department' ];
-		$ldaprecord[ 'employeeNumber' ]     = $userArray[ 'employeenumber' ];
+		$ldaprecord[ 'employeenumber' ]     = $userArray[ 'employeenumber' ];
 
 		if( $userArray[ 'setup_email' ] == 1 ) {
 			$ldaprecord[ 'mail' ] = $sAMAccount . "@" . $userArray[ 'domain' ];
@@ -251,7 +251,7 @@ class wrap {
 
 		$status = $this->ldap->add( $dn, $ldaprecord );
 
-		$passwordStatus = $this->ldap->changePassword( $userArray[ 'dn' ], $userArray[ 'newpassword' ] );
+		$passwordStatus = $this->ldap->changePassword( $dn, $userArray[ 'newpassword' ] );
 
 		if( $status ) {
 			return [
