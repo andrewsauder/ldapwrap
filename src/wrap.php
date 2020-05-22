@@ -197,6 +197,7 @@ class wrap {
 		$middleInitial = '';
 		$cn            = $userArray[ 'givenname' ] . ' ' . $userArray[ 'sn' ];
 		if( isset( $userArray[ 'mn' ] ) && trim( $userArray[ 'mn' ] ) != '' ) {
+			$middleInitial = strtoupper( substr($userArray[ 'mn' ],0,1) );
 			$cn            = $userArray[ 'givenname' ] . ' ' . strtoupper( $middleInitial ) . '. ' . $userArray[ 'sn' ];
 		}
 
