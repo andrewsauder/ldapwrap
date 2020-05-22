@@ -248,7 +248,7 @@ class wrap {
 			$ldaprecord[ 'mail' ] = $sAMAccount . "@" . $userArray[ 'domain' ];
 		}
 
-		$dn = 'CN=' . $ldaprecord[ 'cn' ] . ',OU=' . $userArray[ 'ou' ];
+		$dn = 'CN=' . $ldaprecord[ 'cn' ] . ',' . $userArray[ 'ou' ];
 
 		$status = $this->ldap->add( $dn, $ldaprecord );
 
