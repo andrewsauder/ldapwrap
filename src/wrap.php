@@ -132,6 +132,11 @@ class wrap {
 	}
 
 
+	/**
+	 * @param $userArray an associative array that matches the structure of \andrewsauder\ldapwrap\models\user. It can also include "newpassword" when changepassword=true
+	 *
+	 * @return mixed
+	 */
 	public function updateUser( $userArray ) {
 
 		$modify = null;
@@ -175,6 +180,111 @@ class wrap {
 		}
 
 		return $userArray;
+	}
+
+
+
+	/**
+	 * @param $userArray an associative array that matches the structure of \andrewsauder\ldapwrap\models\user. It can also include "newpassword" when changepassword=true
+	 *
+	 * @return mixed
+	 */
+	public function createUser($userArray) {
+
+		$ldaprecord = [];
+
+		//if middle name is posted, we use it
+		$middleInitial = '';
+		$cn            = $userArray[ 'givenname' ] . ' ' . $userArray[ 'sn' ];
+		if( isset( $userArray[ 'mn' ] ) && trim( $userArray[ 'mn' ] ) != '' ) {
+			$cn            = $userArray[ 'givenname' ] . ' ' . strtoupper( $middleInitial ) . '. ' . $userArray[ 'sn' ];
+		}
+
+		//generate account name
+		$sAMAccount = strtolower( substr( $userArray[ 'givenname' ], 0, 1 ) . $userArray[ 'sn' ] );
+
+		//check if another user already exists with this account name
+		if( $this->userExists( $sAMAccount . "@" . $userArray[ 'domain' ] ) ) {
+
+			if( $middleInitial != '' ) {
+				$sAMAccount = strtolower( substr( $userArray[ 'givenname' ], 0, 1 ) . $middleInitial . $userArray[ 'sn' ] );
+
+				if( $this->userExists( $sAMAccount . "@" . $userArray[ 'domain' ] )  ) {
+					return [
+						'error'   => true,
+						'message' => 'A user with this account name already exists. Have IT manually create account.'
+					];
+				}
+			}
+			else {
+				return [
+					'error'   => true,
+					'message' => 'A user with this account name already exists. Please enter middle name.'
+				];
+			}
+		}
+
+		$ldaprecord[ 'cn' ]                 = $cn;
+		$ldaprecord[ 'givenName' ]          = $userArray[ 'givenname' ];
+		$ldaprecord[ 'sn' ]                 = $userArray[ 'sn' ];
+
+		$ldaprecord[ 'objectclass' ][ 0 ]   = 'top';
+		$ldaprecord[ 'objectclass' ][ 1 ]   = 'person';
+		$ldaprecord[ 'objectclass' ][ 2 ]   = 'organizationalPerson';
+		$ldaprecord[ 'objectclass' ][ 3 ]   = 'user';
+
+		$ldaprecord[ 'sAMAccountName' ]     = $sAMAccount;
+		$ldaprecord[ 'UserPrincipalName' ]  = $sAMAccount . "@" . $userArray[ 'domain' ];
+		$ldaprecord[ 'displayName' ]        = $cn;
+		$ldaprecord[ 'UserAccountControl' ] = "512";
+		$ldaprecord[ 'pwdLastSet' ] = -1;
+
+		$ldaprecord[ 'telephoneNumber' ]    = $userArray[ 'telephonenumber' ];
+		$ldaprecord[ 'department' ]         = $userArray[ 'department' ];
+		$ldaprecord[ 'employeeNumber' ]     = $userArray[ 'employeenumber' ];
+
+		if( $userArray[ 'setup_email' ] == 1 ) {
+			$ldaprecord[ 'mail' ] = $sAMAccount . "@" . $userArray[ 'domain' ];
+		}
+
+		$dn = 'CN=' . $ldaprecord[ 'cn' ] . ',OU=' . $userArray[ 'ou' ];
+
+		$status = $this->ldap->add( $dn, $ldaprecord );
+
+		$passwordStatus = $this->ldap->changePassword( $userArray[ 'dn' ], $userArray[ 'newpassword' ] );
+
+		if( $status ) {
+			return [
+				'error'   => false,
+				'message' => 'Success',
+				'data'   => $ldaprecord
+			];
+		}
+		else {
+			return [
+				'error'   => true,
+				'message' => 'Failed to create user',
+				'data'   => $ldaprecord
+			];
+		}
+	}
+
+	public function userExists( $userprincipalname ) {
+
+		$q      = '(&(objectClass=User)(userPrincipalName=' . $userprincipalname . '))';
+		$fields = [
+			"userPrincipalName",
+			"sAMAccountName",
+		];
+
+		$users = $this->ldap->search( $q, $fields );
+
+		if( isset( $users[ 0 ] ) ) {
+			return true;
+		}
+
+		return false;
+
 	}
 
 
