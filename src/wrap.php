@@ -240,12 +240,19 @@ class wrap {
 		$ldaprecord[ 'useraccountcontrol' ] = "512";
 		$ldaprecord[ 'pwdlastset' ] = -1;
 
-		$ldaprecord[ 'telephonenumber' ]    = $userArray[ 'telephonenumber' ];
-		$ldaprecord[ 'department' ]         = $userArray[ 'department' ];
-		$ldaprecord[ 'employeenumber' ]     = $userArray[ 'employeenumber' ];
+		if(isset($userArray[ 'telephonenumber' ])) {
+			$ldaprecord[ 'telephonenumber' ]    = $userArray[ 'telephonenumber' ];
+		}
+		if(isset($userArray[ 'department' ])) {
+			$ldaprecord[ 'department' ]    = $userArray[ 'department' ];
+		}
+		if(isset($userArray[ 'employeenumber' ])) {
+			$ldaprecord[ 'employeenumber' ]    = $userArray[ 'employeenumber' ];
+		}
 
 		if( $userArray[ 'setup_email' ] == 1 ) {
-			$ldaprecord[ 'mail' ] = $sAMAccount . "@" . $userArray[ 'domain' ];
+			//$ldaprecord[ 'mail' ] = $sAMAccount . "@" . $userArray[ 'domain' ];
+			mail('asauder@garrettcounty.org', 'New User needs email', 'New user created that needs email - '.$sAMAccount . "@" . $userArray[ 'domain' ]);
 		}
 
 		$dn = 'CN=' . $ldaprecord[ 'cn' ] . ',' . $userArray[ 'ou' ];
