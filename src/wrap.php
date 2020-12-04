@@ -252,7 +252,7 @@ class wrap {
 
 		if( $userArray[ 'setup_email' ] == 1 ) {
 			//$ldaprecord[ 'mail' ] = $sAMAccount . "@" . $userArray[ 'domain' ];
-			mail('asauder@garrettcounty.org', 'New User needs email', 'New user created that needs email - '.$sAMAccount . "@" . $userArray[ 'domain' ]);
+			//mail('asauder@garrettcounty.org', 'New User needs email', 'New user created that needs email - '.$sAMAccount . "@" . $userArray[ 'domain' ]);
 		}
 
 		$dn = 'CN=' . $ldaprecord[ 'cn' ] . ',' . $userArray[ 'ou' ];
