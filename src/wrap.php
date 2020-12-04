@@ -240,13 +240,13 @@ class wrap {
 		$ldaprecord[ 'useraccountcontrol' ] = "512";
 		$ldaprecord[ 'pwdlastset' ] = -1;
 
-		if(isset($userArray[ 'telephonenumber' ])) {
+		if(isset($userArray[ 'telephonenumber' ]) && !empty($userArray[ 'telephonenumber' ])) {
 			$ldaprecord[ 'telephonenumber' ]    = $userArray[ 'telephonenumber' ];
 		}
-		if(isset($userArray[ 'department' ])) {
+		if(isset($userArray[ 'department' ]) && !empty($userArray[ 'department' ])) {
 			$ldaprecord[ 'department' ]    = $userArray[ 'department' ];
 		}
-		if(isset($userArray[ 'employeenumber' ])) {
+		if(isset($userArray[ 'employeenumber' ]) && !empty($userArray[ 'employeenumber' ])) {
 			$ldaprecord[ 'employeenumber' ]    = $userArray[ 'employeenumber' ];
 		}
 
