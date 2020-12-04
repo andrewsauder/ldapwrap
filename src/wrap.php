@@ -252,9 +252,9 @@ class wrap {
 
 		$status = $this->ldap->add( $dn, $ldaprecord );
 
-		$passwordStatus = $this->ldap->changePassword( $dn, $userArray[ 'newpassword' ] );
 
 		if( $status ) {
+			$passwordStatus = $this->ldap->changePassword( $dn, $userArray[ 'newpassword' ] );
 			$ldaprecord['changepassword'] = true;
 			$ldaprecord['newpassword'] = $userArray[ 'newpassword' ];
 			return [
