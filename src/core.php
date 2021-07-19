@@ -226,9 +226,11 @@ class core {
 	public function delete( $dn, $new ) {
 
 		$this->connect();
-
-		$modified = ldap_mod_del( $this->connection, $this->getfullDn($dn), $new );
-
+		
+		foreach($new as $key=>$value) {
+			$modified = @ldap_mod_del( $this->connection, $this->getfullDn($dn), [ $key=>$value ] );
+		}
+		
 		return $modified;
 
 	}
